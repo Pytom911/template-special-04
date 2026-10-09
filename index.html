@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Our Little Museum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{brown:'#1a0e09',cream:'#f5ead8',wine:'#6d1a2c',gold:'#c9a35b',rose:'#e8b4bc'},fontFamily:{display:['Playfair Display','serif'],body:['Cormorant Garamond','serif'],script:['Great Vibes','cursive']}}}}</script>
+<style>
+body{background:radial-gradient(ellipse at top,#3a1f14,#1a0e09 70%) fixed;color:#f5ead8;font-family:'Cormorant Garamond',serif;font-size:1.15rem;line-height:1.6;overflow-x:hidden}
+#spot{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(circle 300px at var(--x,50%) var(--y,30%),rgba(232,196,120,.13),transparent 70%)}
+#dust,#cf{position:fixed;inset:0;pointer-events:none}#dust{z-index:1}#cf{z-index:70}
+#dim{position:fixed;inset:0;background:#000;opacity:0;transition:opacity 2.5s;pointer-events:none;z-index:3}
+body.dark #dim{opacity:.55}
+.glow{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;animation:pulse 8s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45;transform:scale(1.25)}}
+.room{display:none;opacity:0;transform:translateY(18px);transition:opacity .8s,transform .8s;position:relative;z-index:5;min-height:100vh;padding-bottom:5rem}
+.room.on{display:block}.room.show{opacity:1;transform:none}
+#r0.on{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem 1.25rem}
+.gline{width:90px;height:1px;margin:1rem auto;background:linear-gradient(90deg,transparent,#c9a35b,transparent)}
+.btn{border:1px solid #c9a35b;padding:.7rem 1.5rem;letter-spacing:.18em;font-size:.8rem;text-transform:uppercase;color:#f5ead8;background:rgba(109,26,44,.55);transition:.4s;cursor:pointer}
+.btn:hover{background:#6d1a2c;box-shadow:0 0 25px rgba(201,163,91,.4)}
+.btn:disabled{cursor:default}
+.frame{padding:10px;background:linear-gradient(135deg,#e8cd8f,#8a6a2c 50%,#e8cd8f);box-shadow:0 20px 40px rgba(0,0,0,.6);transition:.5s}
+.frame:hover{transform:translateY(-6px);box-shadow:0 0 45px rgba(201,163,91,.35),0 25px 40px rgba(0,0,0,.6)}
+.mat{background:#f5ead8;padding:12px}
+.ph{aspect-ratio:4/5;background:linear-gradient(145deg,#6d1a2c,#3a1f14);overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;filter:sepia(.2) saturate(1.05)}
+.plaque{border:1px solid rgba(201,163,91,.45);background:rgba(20,10,6,.75);padding:.6rem .8rem;text-align:center}
+.flip{perspective:900px;height:210px;cursor:pointer}
+.fi{position:relative;width:100%;height:100%;transition:transform .8s;transform-style:preserve-3d}
+.flip.open .fi{transform:rotateY(180deg)}
+.fa,.fb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem;border:1px solid #c9a35b}
+.fa{background:linear-gradient(145deg,#6d1a2c,#3a0d18)}
+.fb{background:#f5ead8;color:#2a1810;transform:rotateY(180deg)}
+.arch{width:190px;height:270px;border-radius:95px 95px 0 0;border:3px solid #c9a35b;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 85%,#fff0c4,#c9a35b 40%,#3a1f14);box-shadow:0 0 60px rgba(201,163,91,.35)}
+.dl,.dr{position:absolute;top:0;bottom:0;width:50%;background:linear-gradient(90deg,#4a1220,#6d1a2c);transition:transform 1.3s cubic-bezier(.6,0,.2,1)}
+.dl{left:0;border-right:1px solid #c9a35b}.dr{right:0}
+.dl::after,.dr::after{content:'';position:absolute;top:55%;width:7px;height:7px;border-radius:50%;background:#c9a35b}
+.dl::after{right:10px}.dr::after{left:10px}
+.arch.open .dl{transform:translateX(-100%)}.arch.open .dr{transform:translateX(100%)}
+.paper{background:linear-gradient(#f5ead8,#ecdcc0);color:#3a1f14;box-shadow:0 25px 60px rgba(0,0,0,.65)}
+.hf{position:fixed;bottom:-30px;z-index:60;pointer-events:none;animation:up 4s ease-in forwards}
+@keyframes up{to{transform:translateY(-115vh) rotate(25deg);opacity:0}}
+.lid,.bx{background:#6d1a2c;border:1px solid #c9a35b}
+.lid::after,.bx::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:22px;margin-left:-11px;background:#c9a35b}
+#gb.shake{animation:sh .15s 6}@keyframes sh{50%{transform:rotate(4deg)}}
+.rev{animation:fd 2s both}@keyframes fd{from{opacity:0;filter:blur(8px)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
+</style>
+</head>
+<body>
+<div class="glow" style="width:420px;height:420px;left:-120px;top:-100px;background:rgba(109,26,44,.5)"></div>
+<div class="glow" style="width:360px;height:360px;right:-100px;bottom:-80px;background:rgba(232,180,188,.18);animation-delay:3s"></div>
+<canvas id="dust"></canvas><div id="spot"></div><div id="dim"></div><canvas id="cf"></canvas>
+
+<div id="load" class="fixed inset-0 z-[100] bg-brown flex flex-col items-center justify-center text-center transition-opacity duration-1000">
+  <i class="bi bi-bank text-gold text-5xl"></i>
+  <p class="font-display text-2xl mt-5">Our Little Museum</p>
+  <p class="italic opacity-70 mt-2">Menyiapkan pameran kenangan…</p>
+  <div class="w-48 h-px bg-gold/25 mt-6 overflow-hidden"><div id="bar" class="h-full bg-gold" style="width:0;transition:width 2.8s ease"></div></div>
+</div>
+
+<nav id="nav" class="fixed top-0 inset-x-0 z-50 hidden bg-brown/80 backdrop-blur border-b border-gold/20 py-3">
+  <div id="dots" class="flex justify-center items-center gap-3 sm:gap-5"></div>
+</nav>
+<div id="toast" class="fixed bottom-6 inset-x-4 z-[80] text-center pointer-events-none opacity-0 transition-opacity duration-500"><span class="inline-block bg-wine border border-gold px-5 py-2 text-sm"></span></div>
+
+<main id="app"></main>
+
+<script>
+/* ============ CONFIG — ganti semua data di sini ============
+   Token {name} {me} {ann} {start} otomatis diganti dari nilai di atas. */
+const C={
+  name:"[NAME]", me:"[YOUR NAME]", ann:"[ANNIVERSARY DATE]", start:"[RELATIONSHIP START DATE]",
+  startISO:"", // opsional, format "2023-05-20" untuk menampilkan jumlah hari bersama
+  title:"Our Little Museum",
+  subtitle:"A collection of memories, moments, and reasons why I love you.",
+  timeline:[
+    ["{start}","Hari Kita Bertemu","Awal dari semuanya. Aku belum tahu bahwa hari biasa itu akan menjadi pameran favoritku."],
+    ["Minggu pertama","Obrolan yang Tak Ingin Selesai","Pesan singkat yang entah bagaimana berlanjut sampai larut malam."],
+    ["Bulan pertama","Kencan Pertama","Gugup, canggung, dan tertawa pada hal-hal yang tidak lucu. Sempurna."],
+    ["Suatu malam","Saat Aku Yakin","Di momen sederhana itu aku sadar: aku ingin pulang kepadamu, berkali-kali."],
+    ["{ann}","Hari Ini, Bersamamu","Satu tahun lagi, satu bab lagi. Dan aku masih jatuh cinta pada orang yang sama."]
+  ],
+  photos:[ // ganti src dengan foto kalian sendiri jika mau
+    ["photo-1518199266791-5375a83190b7","Senja Pertama","Maret 2023","Langit sore yang jadi saksi pertama kita."],
+    ["photo-1516589178581-6cd7833ae3b2","Genggaman","April 2023","Tanganmu selalu pas di tanganku."],
+    ["photo-1522673607200-164d1b6ce486","Pantai dan Angin","Juni 2023","Hari ketika waktu terasa melambat."],
+    ["photo-1511895426328-dc8714191300","Jalan Pulang","Agustus 2023","Jalan kaki tanpa tujuan, tapi bersamamu."],
+    ["photo-1414235077428-338989a2e8c0","Makan Malam Kita","Oktober 2023","Meja kecil, lilin, dan cerita panjang."],
+    ["photo-1501785888041-af3ef285b470","Petualangan Kecil","Desember 2023","Kita tersesat, tapi justru itu yang terbaik."],
+    ["photo-1507525428034-b723cf961d3e","Liburan Itu","Februari 2024","Kenangan yang selalu kuputar ulang."],
+    ["photo-1529634806980-85c3dd6d34ac","Kita, Apa Adanya","Hari Ini","Tak perlu pose. Cukup ada kamu."]
+  ],
+  letter:[
+    "Aku tidak pandai merangkai kata, tapi hari ini aku ingin mencoba. Sejak kamu hadir, hari-hari biasa berubah menjadi sesuatu yang ingin kusimpan baik-baik.",
+    "Terima kasih sudah sabar, sudah tertawa bersamaku, dan sudah tinggal bahkan di hari-hari ketika aku sulit dimengerti.",
+    "Apa pun yang menunggu di depan, aku ingin menjalaninya denganmu. Satu hari, satu cerita, satu kenangan lagi."
+  ],
+  cards:[
+    ["Senyummu","Senyummu adalah hal pertama yang membuat hariku terasa ringan."],
+    ["Caramu Peduli","Kamu peduli dengan cara-cara kecil yang diam-diam paling berarti."],
+    ["Rumah","Bersamamu, aku merasa pulang. Di mana pun itu."],
+    ["Terima Kasih","Terima kasih sudah bertahan di hari-hari aku tidak mudah."],
+    ["Aku Bangga","Aku bangga melihat kamu tumbuh. Kamu jauh lebih hebat dari yang kamu kira."],
+    ["Janji Kecil","Aku akan terus memilihmu, di hari biasa maupun hari spesial."]
+  ],
+  quiz:[ // ok = indeks jawaban benar (mulai dari 0). Sesuaikan dengan kisah kalian!
+    {q:"Di mana kita pertama kali bertemu?",a:["Di kafe kecil","Di kampus","Di rumah teman","Lewat aplikasi"],ok:0},
+    {q:"Apa makanan favorit kita berdua?",a:["Nasi goreng tengah malam","Pizza","Sushi","Es krim"],ok:0},
+    {q:"Kapan aku pertama kali bilang sayang?",a:["Di telepon","Saat jalan malam","Lewat pesan","Saat makan malam"],ok:1},
+    {q:"Hal apa yang paling kusuka darimu?",a:["Senyummu","Tawamu","Caramu peduli","Semuanya"],ok:3}
+  ],
+  quizEnd:["Tidak apa-apa kalau ada yang terlewat. Kita masih punya banyak kenangan untuk dikumpulkan.","Wah, kamu benar-benar mengenal cerita kita!"],
+  choose:{q:"Kalau hari ini aku hanya boleh memberimu satu hal, kamu pilih yang mana?",o:[
+    ["bi-balloon-heart-fill","Pelukan","Pelukan yang lama, sampai semua lelahmu hilang. Aku siap kapan saja."],
+    ["bi-cup-hot-fill","Waktu","Seharian bersamamu tanpa gangguan. Itu hadiah terbaik untukku juga."],
+    ["bi-music-note-beamed","Lagu","Sebuah lagu untukmu. Kamu adalah alasanku jatuh cinta pada lagu-lagu."]]},
+  goal:12,
+  heartsWin:"Hatiku sudah kamu tangkap sejak lama, {name}. Kali ini bukan hanya di game.",
+  heartsLose:"Tidak apa-apa. Hatiku sudah milikmu tanpa perlu ditangkap. Coba lagi?",
+  secret:"Rahasia kecilku: setiap kali kamu tersenyum, diam-diam aku merasa menang. Dan aku akan terus berusaha membuatmu tersenyum, hari ini dan seterusnya.",
+  gift:"Hadiahku bukan benda. Hadiahku adalah janji: aku akan terus ada, terus belajar mencintaimu lebih baik. Selamat hari jadi, {name}.",
+  final:["Terima kasih sudah menjadi bagian dari ceritaku.","Untuk setiap tawa, setiap sabar, dan setiap hari biasa yang terasa luar biasa karena ada kamu.","Museum ini hanya sebagian kecil dari semua yang kurasakan. Koleksi terbaiknya masih kita tulis bersama.","Aku mencintaimu, hari ini dan setiap hari setelahnya."]
+};
+/* ============ END CONFIG ============ */
+
+const $=s=>document.querySelector(s);
+const t=s=>s.replaceAll('{name}',C.name).replaceAll('{me}',C.me).replaceAll('{ann}',C.ann).replaceAll('{start}',C.start);
+const R=['Entrance','Our Story','Memories','A Letter for You','Little Things I Want You to Know','Our Little Games','Secret Exhibition','A Little Gift','Final Room'];
+const days=C.startISO?Math.floor((Date.now()-new Date(C.startISO))/864e5):0;
+const hd=(i,ti,sub)=>`<header class="text-center pt-24 pb-10 px-5"><p class="text-gold text-sm tracking-[.35em]">ROOM 0${i}</p><h2 class="font-display text-3xl md:text-5xl mt-3">${ti}</h2><div class="gline"></div><p class="italic opacity-80 max-w-md mx-auto">${sub}</p></header>`;
+const ft=i=>`<div class="flex flex-wrap justify-center gap-3 mt-14 px-4"><button class="btn" onclick="go(${i-1})"><i class="bi bi-arrow-left"></i> Kembali</button><button class="btn" onclick="go(${i+1})">Ruang Berikutnya <i class="bi bi-arrow-right"></i></button></div>`;
+const sec=(i,x)=>`<section class="room" id="r${i}">${x}</section>`;
+
+const H=[];
+// HOME
+H.push(`<section class="room on show" id="r0" style="opacity:0">
+<p class="text-gold text-xs tracking-[.4em] mb-6">{name} &amp; {me} &nbsp;·&nbsp; Est. {start}</p>
+<h1 class="font-display text-4xl sm:text-6xl md:text-7xl leading-tight">${C.title}</h1><div class="gline"></div>
+<p class="italic text-lg max-w-md opacity-85">${C.subtitle}</p>
+<div class="arch mt-10" id="door"><div class="dl"></div><div class="dr"></div></div>
+<button class="btn mt-8" id="enter">Enter the Museum</button>
+<p class="mt-5 text-sm opacity-60">Dibuka untuk {name} · {ann}</p></section>`);
+// 1 STORY
+H.push(sec(1,hd(1,'Our Story','Sebuah pameran tentang bagaimana kita dimulai.')+(days?`<p class="text-center -mt-4 mb-8 text-rose italic">${days} hari bersama dan terus bertambah</p>`:'')+
+`<div class="max-w-2xl mx-auto px-6 relative"><div class="absolute left-[27px] top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-gold to-transparent"></div>`+
+C.timeline.map((e,i)=>`<div class="relative pl-14 mb-9"><span class="absolute left-5 top-3 w-4 h-4 rounded-full bg-brown border-2 border-gold"></span><div class="plaque !text-left"><p class="text-gold text-sm">${e[0]}</p><h3 class="font-display text-xl my-1">${e[1]}</h3><p class="opacity-85">${e[2]}</p></div></div>`).join('')+`</div>`+ft(1)));
+// 2 MEMORIES
+H.push(sec(2,hd(2,'Memories','Koleksi foto kita, dipajang seperti karya seni.')+
+`<div class="max-w-6xl mx-auto px-5 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">`+
+C.photos.map(p=>`<figure><div class="frame"><div class="mat"><div class="ph"><img loading="lazy" src="https://images.unsplash.com/${p[0]}?auto=format&fit=crop&w=700&q=80" alt="${p[1]}" onerror="this.style.display='none'"></div></div></div><figcaption class="plaque mt-4"><p class="font-display">${p[1]}</p><p class="text-gold text-xs tracking-widest my-1">${p[2]}</p><p class="text-sm italic opacity-80">${p[3]}</p></figcaption></figure>`).join('')+`</div>`+
+`<button id="key" onclick="unlock()" aria-label="kunci" class="block ml-auto mr-6 mt-10 text-gold/25 hover:text-gold text-2xl transition"><i class="bi bi-key-fill"></i></button>`+ft(2)));
+// 3 LETTER
+H.push(sec(3,hd(3,'A Letter for You','Sebuah surat, dibingkai agar tidak terlupa.')+
+`<div class="max-w-xl mx-auto px-5"><div class="frame !p-3"><div class="paper p-7 sm:p-12 border border-[#c9a35b]/60">
+<p class="font-script text-4xl text-wine mb-5">Dear {name},</p>`+C.letter.map(p=>`<p class="mb-4 text-lg sm:text-xl">${p}</p>`).join('')+
+`<p class="font-script text-3xl text-wine mt-8 text-right">Yours, {me}</p><p class="text-right text-sm opacity-60">{ann}</p></div></div></div>`+ft(3)));
+// 4 CARDS
+H.push(sec(4,hd(4,'Little Things I Want You to Know','Ketuk kartu untuk membukanya, satu per satu.')+
+`<p class="text-center text-gold text-sm tracking-widest mb-6" id="cc">0 / ${C.cards.length} TERBUKA</p><div class="max-w-4xl mx-auto px-5 grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">`+
+C.cards.map((c,i)=>`<div class="flip" onclick="this.classList.add('open');cnt()"><div class="fi"><div class="fa"><i class="bi bi-suit-heart-fill text-gold text-3xl"></i><p class="text-xs tracking-[.3em] mt-3 text-gold">KOLEKSI ${i+1}</p></div><div class="fb"><h3 class="font-display text-lg text-wine mb-2">${c[0]}</h3><p class="text-sm sm:text-base leading-snug">${c[1]}</p></div></div></div>`).join('')+`</div>`+ft(4)));
+// 5 GAMES
+H.push(sec(5,hd(5,'Our Little Games','Tiga permainan kecil untuk kita berdua.')+
+`<div class="max-w-xl mx-auto px-5"><div class="flex justify-center gap-2 mb-6 flex-wrap">
+<button class="btn" onclick="tab(0)">Kuis</button><button class="btn" onclick="tab(1)">Pilih Satu</button><button class="btn" onclick="tab(2)">Tangkap Hati</button></div>
+<div class="plaque !p-6 min-h-[380px] text-center">
+<div class="tp" id="g0"><div id="qz"></div></div>
+<div class="tp hidden" id="g1"><p class="font-display text-xl mb-6">${C.choose.q}</p><div class="grid grid-cols-3 gap-3">${C.choose.o.map((o,i)=>`<button class="btn !px-2 !py-5 !text-xs" onclick="pick(${i})"><i class="bi ${o[0]} text-3xl block mb-2 text-rose"></i>${o[1]}</button>`).join('')}</div><p id="co" class="mt-6 italic text-lg"></p></div>
+<div class="tp hidden" id="g2"><p id="hs" class="text-gold mb-3">Tangkap ${C.goal} hati dalam 20 detik</p><div id="ha" class="relative overflow-hidden h-[340px] border border-gold/30 bg-black/20 touch-none"><div class="absolute inset-0 flex items-center justify-center"><button class="btn" onclick="startH()">Mulai</button></div></div></div>
+</div></div>`+ft(5)));
+// 6 SECRET
+H.push(sec(6,hd(6,'Secret Exhibition','Tidak semua koleksi dipajang untuk umum.')+
+`<div class="max-w-lg mx-auto px-6 text-center"><div id="lk"><i class="bi bi-lock-fill text-5xl text-gold"></i><p class="mt-5 italic text-lg">Ruangan ini terkunci.<br>Ada kunci emas kecil yang bersembunyi di salah satu galeri. Perhatikan sudut-sudutnya.</p></div>
+<div id="op" class="hidden"><i class="bi bi-unlock-fill text-4xl text-gold"></i><div class="plaque mt-6 !p-8"><p class="font-script text-3xl text-rose mb-3">Kamu menemukannya.</p><p class="text-xl">${C.secret}</p></div></div></div>`+ft(6)));
+// 7 GIFT
+H.push(sec(7,hd(7,'A Little Gift','Satu hadiah kecil, khusus untukmu.')+
+`<div class="text-center px-6"><div id="gb" class="relative mx-auto w-40 h-44 cursor-pointer" onclick="gift()" style="filter:drop-shadow(0 0 25px rgba(201,163,91,.35))"><div class="lid absolute top-0 -left-2 w-[176px] h-10 z-10 transition-transform duration-700"></div><div class="bx absolute bottom-0 left-0 w-40 h-32"></div></div>
+<p class="mt-8 text-gold text-sm tracking-widest" id="gh">KETUK UNTUK MEMBUKA</p>
+<div id="gm" class="opacity-0 transition-opacity duration-1000 max-w-md mx-auto mt-6 plaque !p-6"><p class="text-xl">${C.gift}</p></div></div>`+ft(7)));
+// 8 FINAL
+H.push(`<section class="room" id="r8"><div class="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-16"><p class="text-gold text-sm tracking-[.4em]">FINAL ROOM</p>
+<h2 class="font-display text-3xl sm:text-5xl mt-4 max-w-2xl leading-snug">Thank You For Being Part of My Story</h2><div class="gline"></div>
+<div class="max-w-xl mt-4 text-xl space-y-4" style="text-shadow:0 0 25px rgba(232,196,120,.35)">${C.final.map(p=>`<p>${p}</p>`).join('')}</div>
+<p class="font-script text-4xl text-rose mt-8">— {me}</p><p class="text-sm opacity-60 mt-1">{ann}</p>
+<button class="btn mt-10" onclick="go(0)">Kembali ke Pintu Masuk</button></div></section>`);
+$('#app').innerHTML=t(H.join(''));
+
+// NAV
+$('#dots').innerHTML=`<button onclick="go(0)" class="text-gold" aria-label="Entrance"><i class="bi bi-door-open"></i></button>`+R.slice(1).map((r,i)=>`<button class="dt w-2.5 h-2.5 rounded-full border border-gold transition" title="${r}" onclick="go(${i+1})"></button>`).join('');
+let cur=0,busy=0;
+function go(i){if(busy||i<0||i>8||i==cur)return;busy=1;const a=$('#r'+cur),b=$('#r'+i);a.classList.remove('show');
+ setTimeout(()=>{a.classList.remove('on');b.classList.add('on');scrollTo(0,0);cur=i;
+  document.body.classList.toggle('dark',i==8);$('#nav').classList.toggle('hidden',i==0);
+  document.querySelectorAll('.dt').forEach((d,k)=>d.style.background=k+1==i?'#c9a35b':'transparent');
+  if(i==6)secUpd();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{b.classList.add('show');busy=0}))},650)}
+function toast(m){const e=$('#toast');e.firstElementChild.textContent=m;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,3200)}
+
+// ENTER
+$('#enter').onclick=()=>{$('#door').classList.add('open');$('#enter').disabled=true;setTimeout(()=>go(1),1500)};
+// LOADER
+$('#r0').style.opacity='';
+requestAnimationFrame(()=>{$('#bar').style.width='100%'});
+setTimeout(()=>{$('#load').style.opacity=0;setTimeout(()=>$('#load').remove(),1000)},3100);
+
+// CARDS
+function cnt(){$('#cc').textContent=document.querySelectorAll('.flip.open').length+' / '+C.cards.length+' TERBUKA'}
+// SECRET
+let secret=0;
+function unlock(){if(secret)return;secret=1;$('#key').style.color='#c9a35b';toast('Kamu menemukan kunci emas. Ruang rahasia terbuka!')}
+function secUpd(){$('#lk').classList.toggle('hidden',!!secret);$('#op').classList.toggle('hidden',!secret);if(secret)$('#op').classList.add('rev')}
+
+// GAMES
+function tab(n){document.querySelectorAll('.tp').forEach((e,i)=>e.classList.toggle('hidden',i!=n))}
+let qi=0,qs=0;
+function quiz(){const b=$('#qz'),q=C.quiz[qi];
+ if(!q){b.innerHTML=`<p class="font-display text-4xl">${qs} / ${C.quiz.length}</p><p class="mt-4 text-xl">${C.quizEnd[qs>=C.quiz.length-1?1:0]}</p><button class="btn mt-6" onclick="qi=qs=0;quiz()">Main lagi</button>`;return}
+ b.innerHTML=`<p class="text-xs text-gold tracking-widest mb-3">PERTANYAAN ${qi+1} / ${C.quiz.length}</p><p class="font-display text-xl mb-5">${q.q}</p>`+q.a.map((a,i)=>`<button class="btn block w-full mb-3 !normal-case !tracking-normal !text-base" onclick="ans(this,${i})">${a}</button>`).join('')}
+function ans(el,i){const q=C.quiz[qi],bs=[...el.parentNode.querySelectorAll('button')];if(i===q.ok)qs++;
+ bs.forEach(b=>b.disabled=true);bs[q.ok].style.background='#2f5a3a';if(i!==q.ok)el.style.background='#7a2020';
+ setTimeout(()=>{qi++;quiz()},1100)}
+quiz();
+function pick(i){$('#co').textContent=t(C.choose.o[i][2])}
+let sc=0,tm=0,iv,sp;
+function upd(){$('#hs').textContent=`❤ ${sc} / ${C.goal}  ·  ${tm} detik`}
+function startH(){clearInterval(iv);clearInterval(sp);sc=0;tm=20;const a=$('#ha');a.innerHTML='';upd();
+ sp=setInterval(()=>{const h=document.createElement('i');h.className='bi bi-heart-fill absolute text-4xl cursor-pointer select-none';
+  h.style.cssText=`left:${Math.random()*85}%;top:-45px;color:${Math.random()>.5?'#e8b4bc':'#c9364f'};transition:top ${2.5+Math.random()*2}s linear`;
+  h.onpointerdown=()=>{sc++;h.remove();upd()};a.appendChild(h);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>h.style.top='345px'));setTimeout(()=>h.remove(),5200)},520);
+ iv=setInterval(()=>{tm--;upd();if(tm<=0){clearInterval(iv);clearInterval(sp);
+  a.innerHTML=`<div class="absolute inset-0 flex flex-col items-center justify-center p-6"><p class="text-xl mb-5">${t(sc>=C.goal?C.heartsWin:C.heartsLose)}</p><button class="btn" onclick="startH()">Main lagi</button></div>`}},1000)}
+
+// GIFT
+function gift(){const g=$('#gb');if(g.dataset.o)return;g.dataset.o=1;g.classList.add('shake');
+ setTimeout(()=>{g.classList.remove('shake');g.querySelector('.lid').style.transform='translateY(-55px) rotate(-16deg)';
+  $('#gh').textContent='';confetti();hearts();$('#gm').style.opacity=1},1000)}
+function confetti(){const c=$('#cf'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+ const col=['#c9a35b','#e8b4bc','#6d1a2c','#f5ead8','#e8cd8f'];
+ const p=Array.from({length:150},()=>({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*15,vy:-Math.random()*16-4,s:Math.random()*8+5,r:Math.random()*6,c:col[Math.random()*5|0]}));let f=0;
+ (function d(){x.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.x+=q.vx;q.y+=q.vy;q.vy+=.35;q.vx*=.99;q.r+=.2;x.save();x.translate(q.x,q.y);x.rotate(q.r);x.fillStyle=q.c;x.fillRect(-q.s/2,-q.s/4,q.s,q.s/2);x.restore()});
+  if(++f<220)requestAnimationFrame(d);else x.clearRect(0,0,c.width,c.height)})()}
+function hearts(){for(let i=0;i<26;i++){const h=document.createElement('i');h.className='bi bi-heart-fill hf';
+ h.style.cssText=`left:${Math.random()*100}vw;font-size:${14+Math.random()*28}px;color:${Math.random()>.5?'#e8b4bc':'#c9364f'};animation-delay:${Math.random()*1.8}s`;
+ document.body.appendChild(h);setTimeout(()=>h.remove(),6500)}}
+
+// AMBIENT: floating dust + spotlight
+(function(){const c=$('#dust'),x=c.getContext('2d');let w,h;const rs=()=>{w=c.width=innerWidth;h=c.height=innerHeight};rs();addEventListener('resize',rs);
+ const p=Array.from({length:70},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.8+.4,s:Math.random()*.3+.08,a:Math.random()*6}));
+ (function d(){x.clearRect(0,0,w,h);p.forEach(q=>{q.y-=q.s;q.x+=Math.sin(q.a+=.01)*.3;if(q.y<-5){q.y=h+5;q.x=Math.random()*w}
+  x.beginPath();x.arc(q.x,q.y,q.r,0,7);x.fillStyle=`rgba(232,196,120,${.28+Math.sin(q.a)*.2})`;x.shadowBlur=8;x.shadowColor='#e8c478';x.fill()});requestAnimationFrame(d)})()})();
+addEventListener('pointermove',e=>{const s=$('#spot').style;s.setProperty('--x',e.clientX+'px');s.setProperty('--y',e.clientY+'px')});
+</script>
+</body>
+</html>
